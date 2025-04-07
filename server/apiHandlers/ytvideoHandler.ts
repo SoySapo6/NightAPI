@@ -34,13 +34,13 @@ export async function downloadYoutubeVideo(req: Request, res: Response) {
     try {
       // First, get video info
       const { stdout: infoOutput } = await execPromise(
-        `youtube-dl --dump-json "${url}"`
+        `yt-dlp --dump-json "${url}"`
       );
       
       const videoInfo = JSON.parse(infoOutput);
       const { title, uploader, duration } = videoInfo;
       
-      // Map quality strings to format strings for youtube-dl
+      // Map quality strings to format strings for yt-dlp
       const formatMap: Record<string, string> = {
         '360p': '18',       // 360p mp4
         '480p': '135+140',  // 480p mp4 + audio
@@ -51,7 +51,7 @@ export async function downloadYoutubeVideo(req: Request, res: Response) {
       const formatString = formatMap[quality] || '22'; // Default to 720p if not found
       
       // Download video
-      const command = `youtube-dl -f ${formatString} -o "${outputPath}" "${url}"`;
+      const command = `yt-dlp -f ${formatString} -o "${outputPath}" "${url}"`;
       await execPromise(command);
       
       // Check if file exists

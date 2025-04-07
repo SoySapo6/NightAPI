@@ -2,45 +2,88 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import axios from 'axios';
 
-// API Key for Tenor (esta debe ser guardada como variable de entorno en producción)
-const TENOR_API_KEY = "AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ";
+// Función para convertir emoji a código Unicode
+function getEmojiUnicode(emoji: string): string {
+  let unicode = '';
+  for (let i = 0; i < emoji.length; i++) {
+    unicode += emoji.charCodeAt(i).toString(16);
+  }
+  return unicode;
+}
 
 export async function mixEmojis(req: Request, res: Response) {
   try {
     // Validate query parameters
     const schema = z.object({
-      emoji1: z.string().min(1).max(4),
-      emoji2: z.string().min(1).max(4)
+      emoji1: z.string().min(1).max(10),
+      emoji2: z.string().min(1).max(10)
     });
     
     const { emoji1, emoji2 } = schema.parse(req.query);
     
     try {
-      // Construir la URL de la API de Emoji Kitchen
-      const apiUrl = `https://tenor.googleapis.com/v2/featured?key=${TENOR_API_KEY}&contentfilter=high&media_filter=png_transparent&component=proactive&collection=emoji_kitchen_v5&q=${encodeURIComponent(emoji1)}_${encodeURIComponent(emoji2)}`;
+      // Obtener el código Unicode de los emojis
+      const emoji1Code = getEmojiUnicode(emoji1);
+      const emoji2Code = getEmojiUnicode(emoji2);
       
-      // Hacer la solicitud a la API
-      const response = await axios.get(apiUrl);
+      // Probar con diferentes versiones de EmojiKitchen
+      const versions = [
+        "20201001", "20210218", "20210521", "20210831", 
+        "20211115", "20220203", "20220506", "20220815", 
+        "20221101", "20230301", "20230803"
+      ];
       
-      // Verificar si hay resultados
-      if (!response.data.results || response.data.results.length === 0) {
-        return res.status(404).json({
-          error: 'Not Found',
-          message: 'No se encontró una combinación para esos emojis'
-        });
+      // Probar todas las combinaciones posibles
+      for (const version of versions) {
+        // Primero intentar con el orden original
+        const apiUrl = `https://www.gstatic.com/android/keyboard/emojikitchen/${version}/${emoji1Code}/${emoji1Code}_${emoji2Code}.png`;
+        
+        try {
+          // Verificar si existe la imagen combinada
+          const response = await axios.head(apiUrl);
+          
+          if (response.status === 200) {
+            // La imagen existe
+            return res.json({
+              success: true,
+              emoji1,
+              emoji2,
+              results: [{
+                url: apiUrl,
+                content_description: `Mix of ${emoji1} and ${emoji2}`
+              }]
+            });
+          }
+        } catch (error) {
+          // Intentar con el orden invertido
+          const reversedApiUrl = `https://www.gstatic.com/android/keyboard/emojikitchen/${version}/${emoji2Code}/${emoji2Code}_${emoji1Code}.png`;
+          
+          try {
+            const reversedResponse = await axios.head(reversedApiUrl);
+            
+            if (reversedResponse.status === 200) {
+              // La imagen existe con el orden invertido
+              return res.json({
+                success: true,
+                emoji1,
+                emoji2,
+                results: [{
+                  url: reversedApiUrl,
+                  content_description: `Mix of ${emoji2} and ${emoji1}`
+                }]
+              });
+            }
+          } catch (error) {
+            // Continuar con la siguiente versión
+            continue;
+          }
+        }
       }
       
-      // Extraer las URLs de las imágenes
-      const results = response.data.results.map((result: any) => ({
-        url: result.url,
-        content_description: result.content_description || 'Emoji Mix'
-      }));
-      
-      res.json({
-        success: true,
-        emoji1,
-        emoji2,
-        results
+      // Si llega aquí, no se encontró ninguna combinación
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'No se encontró una combinación para esos emojis'
       });
       
     } catch (error: any) {

@@ -33,14 +33,14 @@ export async function downloadYoutubeAudio(req: Request, res: Response) {
     try {
       // First, get video info
       const { stdout: infoOutput } = await execPromise(
-        `youtube-dl --dump-json "${url}"`
+        `yt-dlp --dump-json "${url}"`
       );
       
       const videoInfo = JSON.parse(infoOutput);
       const { title, uploader, duration } = videoInfo;
       
       // Download audio
-      const command = `youtube-dl --extract-audio --audio-format ${format} --audio-quality 0 -o "${outputPath}" "${url}"`;
+      const command = `yt-dlp --extract-audio --audio-format ${format} --audio-quality 0 -o "${outputPath}" "${url}"`;
       await execPromise(command);
       
       // Check if file exists
