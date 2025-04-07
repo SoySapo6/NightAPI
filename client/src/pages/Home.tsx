@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'wouter';
-import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, ImageIcon, UserCheck, MapPin, Languages, Link2, Youtube, Music, Speech, MessageSquare, Smile } from 'lucide-react';
+import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, ImageIcon, UserCheck, MapPin, Languages, Link2, Youtube, Music, Speech, MessageSquare, Smile, Search, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 import Header from '@/components/Header';
@@ -400,6 +400,52 @@ const Home: FC = () => {
         prompt: "a starry night with astronauts",
         format: "jpg",
         image_url: `${baseUrl}/dalle/image_example.jpg`
+      })
+    },
+    {
+      icon: <Search />,
+      title: "Google Search",
+      description: "Search the web using Google and get structured results with screenshots.",
+      endpoints: [
+        { 
+          path: "/api/google", 
+          fullUrl: `${baseUrl}/api/google?query=night+sky+photography` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        query: "night sky photography",
+        screenshot: "https://image.thum.io/get/fullpage/https://google.com/search?q=night+sky+photography",
+        results: [
+          {
+            title: "Night Sky Photography: A Beginner's Guide",
+            url: "https://example.com/night-sky-guide",
+            description: "Learn how to capture stunning night sky photographs with this comprehensive guide for beginners."
+          },
+          {
+            title: "Best Cameras for Night Photography 2023",
+            url: "https://example.com/cameras-night-photo",
+            description: "Top-rated cameras and lenses for capturing the stars, moon, and Milky Way."
+          }
+        ]
+      })
+    },
+    {
+      icon: <MessageCircle />,
+      title: "Quote Stickers",
+      description: "Generate message-style stickers from quotes or text for use in applications.",
+      endpoints: [
+        { 
+          path: "/api/quotesticker", 
+          fullUrl: `${baseUrl}/api/quotesticker?text=Look+at+the+stars+and+dream&name=NightWalker&avatar=https://example.com/avatar.jpg` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        text: "Look at the stars and dream",
+        name: "NightWalker",
+        format: "png",
+        file_size: "45KB"
       })
     }
   ];

@@ -50,6 +50,8 @@ import { searchGifs, getRandomGif } from "./apiHandlers/gifHandler";
 import { getSimiResponse } from "./apiHandlers/simiHandler";
 import { mixEmojis } from "./apiHandlers/emojiMixHandler";
 import { generateImage as generateDalleImage } from "./apiHandlers/dalleHandler";
+import { searchGoogle } from "./apiHandlers/googleSearchHandler";
+import { generateQuoteSticker } from "./apiHandlers/quoteStickersHandler";
 
 // Rate limiting middleware
 const rateLimit = async (req: Request, res: Response, next: () => void) => {
@@ -193,6 +195,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // 17. DALL-E Image Generation
   app.get('/api/dalle', generateDalleImage);
+  
+  // 18. Google Search
+  app.get('/api/google', searchGoogle);
+  
+  // 19. Quote Stickers Generation
+  app.get('/api/quotesticker', generateQuoteSticker);
   
   // Shortcode redirect endpoint
   app.get('/s/:code', async (req, res) => {
