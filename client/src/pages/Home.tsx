@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'wouter';
-import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, ImageIcon, UserCheck, MapPin, Languages, Link2, Youtube, Music, Speech } from 'lucide-react';
+import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, ImageIcon, UserCheck, MapPin, Languages, Link2, Youtube, Music, Speech, MessageSquare, Smile } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 import Header from '@/components/Header';
@@ -344,6 +344,62 @@ const Home: FC = () => {
             source: "https://tenor.com/view/cat-cute-pet-animal-kitten-123456789"
           }
         ]
+      })
+    },
+    {
+      icon: <MessageSquare />,
+      title: "SimSimi Chat",
+      description: "Engage with a fun AI chatbot for conversational responses.",
+      endpoints: [
+        { 
+          path: "/api/simi", 
+          fullUrl: `${baseUrl}/api/simi?text=Hola+como+estas&language=es` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        text: "Hola como estas",
+        language: "es",
+        response: "Estoy bien, ¿y tú?"
+      })
+    },
+    {
+      icon: <Smile />,
+      title: "Emoji Mix",
+      description: "Combine two emojis to create unique emoji mashups.",
+      endpoints: [
+        { 
+          path: "/api/emojimix", 
+          fullUrl: `${baseUrl}/api/emojimix?emoji1=😀&emoji2=🐱` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        emoji1: "😀",
+        emoji2: "🐱",
+        results: [
+          {
+            url: "https://tenor.googleapis.com/example/emoji_kitchen_emoji1emoji2.png",
+            content_description: "Emoji Mix of Smile and Cat"
+          }
+        ]
+      })
+    },
+    {
+      icon: <ImageIcon />,
+      title: "DALL-E Image",
+      description: "Generate creative images from text descriptions using AI.",
+      endpoints: [
+        { 
+          path: "/api/dalle", 
+          fullUrl: `${baseUrl}/api/dalle?prompt=a+starry+night+with+astronauts` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        prompt: "a starry night with astronauts",
+        format: "jpg",
+        image_url: `${baseUrl}/dalle/image_example.jpg`
       })
     }
   ];

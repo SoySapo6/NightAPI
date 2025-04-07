@@ -47,6 +47,9 @@ import { downloadYoutubeVideo } from "./apiHandlers/ytvideoHandler";
 import { textToSpeech } from "./apiHandlers/ttsHandler";
 import { searchSoundcloud, downloadSoundcloud } from "./apiHandlers/soundcloudHandler";
 import { searchGifs, getRandomGif } from "./apiHandlers/gifHandler";
+import { getSimiResponse } from "./apiHandlers/simiHandler";
+import { mixEmojis } from "./apiHandlers/emojiMixHandler";
+import { generateImage as generateDalleImage } from "./apiHandlers/dalleHandler";
 
 // Rate limiting middleware
 const rateLimit = async (req: Request, res: Response, next: () => void) => {
@@ -181,6 +184,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 14. Tenor GIFs
   app.get('/api/gif/search', searchGifs);
   app.get('/api/gif/random', getRandomGif);
+  
+  // 15. SimSimi Chat
+  app.get('/api/simi', getSimiResponse);
+  
+  // 16. Emoji Mix
+  app.get('/api/emojimix', mixEmojis);
+  
+  // 17. DALL-E Image Generation
+  app.get('/api/dalle', generateDalleImage);
   
   // Shortcode redirect endpoint
   app.get('/s/:code', async (req, res) => {
