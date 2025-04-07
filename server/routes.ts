@@ -42,6 +42,9 @@ import {
   shortenUrl, 
   getUrlInfo 
 } from "./apiHandlers/urlHandler";
+import { downloadYoutubeAudio } from "./apiHandlers/ytaudioHandler";
+import { downloadYoutubeVideo } from "./apiHandlers/ytvideoHandler";
+import { textToSpeech } from "./apiHandlers/ttsHandler";
 
 // Rate limiting middleware
 const rateLimit = async (req: Request, res: Response, next: () => void) => {
@@ -93,7 +96,8 @@ const logApiRequest = async (req: Request, res: Response, next: () => void) => {
   const originalEnd = res.end;
   
   // Override end method
-  res.end = function (this: any, ...args: any[]) {
+  // @ts-ignore - Ignore type mismatch for response interceptor
+  res.end = function (chunk: any, encoding?: BufferEncoding, cb?: () => void) {
     const duration = Date.now() - start;
     
     // Log API call
@@ -104,7 +108,8 @@ const logApiRequest = async (req: Request, res: Response, next: () => void) => {
       response_time: duration
     });
     
-    originalEnd.apply(this, args);
+    // @ts-ignore - Apply original end method
+    return originalEnd.apply(this, arguments);
   };
   
   next();
@@ -159,6 +164,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 10. URL Shortener
   app.get('/api/url/shorten', shortenUrl);
   app.get('/api/url/info', getUrlInfo);
+  
+  // 11. YouTube Downloader
+  app.get('/api/ytaudio', downloadYoutubeAudio);
+  app.get('/api/ytvideo', downloadYoutubeVideo);
+  
+  // 12. Text-to-Speech
+  app.get('/api/tts', textToSpeech);
   
   // Shortcode redirect endpoint
   app.get('/s/:code', async (req, res) => {

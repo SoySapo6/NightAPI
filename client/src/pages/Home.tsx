@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'wouter';
-import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, Image, UserCheck, MapPin, Languages, Link2 } from 'lucide-react';
+import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, Image, UserCheck, MapPin, Languages, Link2, Youtube, Music, Speech } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 import Header from '@/components/Header';
@@ -248,6 +248,47 @@ const Home: FC = () => {
         code: "abc123",
         created_at: "2023-06-15T12:30:00Z",
         clicks: 0
+      })
+    },
+    {
+      icon: <Youtube />,
+      title: "YouTube Downloader",
+      description: "Download audio and video from YouTube videos.",
+      endpoints: [
+        { 
+          path: "/api/ytaudio", 
+          fullUrl: `${baseUrl}/api/ytaudio?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ&format=mp3` 
+        },
+        { 
+          path: "/api/ytvideo", 
+          fullUrl: `${baseUrl}/api/ytvideo?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ&format=mp4&quality=720p` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        format: "mp3",
+        title: "Never Gonna Give You Up",
+        author: "Rick Astley",
+        duration: "3:32",
+        file_size: "3.5 MB"
+      })
+    },
+    {
+      icon: <Speech />,
+      title: "Text-to-Speech",
+      description: "Convert text to spoken audio in multiple languages.",
+      endpoints: [
+        { 
+          path: "/api/tts", 
+          fullUrl: `${baseUrl}/api/tts?text=Hola+mundo&lang=es` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        text: "Hola mundo",
+        language: "es",
+        audio_format: "mp3",
+        duration_seconds: 1.2
       })
     }
   ];
