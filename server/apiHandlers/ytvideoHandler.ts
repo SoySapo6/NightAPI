@@ -40,18 +40,30 @@ export async function downloadYoutubeVideo(req: Request, res: Response) {
       const videoInfo = JSON.parse(infoOutput);
       const { title, uploader, duration } = videoInfo;
       
-      // Map quality strings to format strings for yt-dlp
-      const formatMap: Record<string, string> = {
-        '360p': '18',       // 360p mp4
-        '480p': '135+140',  // 480p mp4 + audio
-        '720p': '22',       // 720p mp4
-        '1080p': '137+140', // 1080p mp4 + audio
-      };
+      // Primero obtenemos los formatos disponibles
+      const { stdout: formatsOutput } = await execPromise(
+        `yt-dlp -F "${url}"`
+      );
       
-      const formatString = formatMap[quality] || '22'; // Default to 720p if not found
+      console.log("Formatos disponibles:", formatsOutput);
       
-      // Download video
-      const command = `yt-dlp -f ${formatString} -o "${outputPath}" "${url}"`;
+      // Seleccionar el mejor formato según la calidad solicitada
+      let formatString = '';
+      
+      // Calidad deseada en orden de preferencia
+      if (quality === '1080p') {
+        formatString = 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best';
+      } else if (quality === '720p') {
+        formatString = 'bestvideo[height<=720]+bestaudio/best[height<=720]/best';
+      } else if (quality === '480p') {
+        formatString = 'bestvideo[height<=480]+bestaudio/best[height<=480]/best';
+      } else {
+        formatString = 'bestvideo[height<=360]+bestaudio/best[height<=360]/best';
+      }
+      
+      // Download video con más opciones para evitar throttling
+      const command = `yt-dlp -f ${formatString} --no-check-certificates --geo-bypass -o "${outputPath}" "${url}"`;
+      console.log("Ejecutando comando:", command);
       await execPromise(command);
       
       // Check if file exists

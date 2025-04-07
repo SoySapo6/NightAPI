@@ -2,13 +2,35 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import axios from 'axios';
 
-// Función para convertir emoji a código Unicode
+// Función para convertir emoji a código Unicode en formato de EmojiKitchen
 function getEmojiUnicode(emoji: string): string {
-  let unicode = '';
+  // Utilizamos el método codePointAt para manejar correctamente emojis compuestos y con modificadores
+  // que pueden ocupar más de un punto de código Unicode
+  let codePoint = 0;
+  
+  // Los emojis modernos pueden estar compuestos de múltiples puntos de código
+  // Tomamos el primero que es el base del emoji (ignoramos modificadores como tono de piel)
   for (let i = 0; i < emoji.length; i++) {
-    unicode += emoji.charCodeAt(i).toString(16);
+    const code = emoji.codePointAt(i);
+    if (code && code > 0xffff) {
+      // Si es un punto de código fuera del plano BMP (Basic Multilingual Plane)
+      // tenemos que hacer un tratamiento especial
+      codePoint = code;
+      break;
+    } else if (code) {
+      // Si no tenemos un punto de código mayor, usamos este
+      codePoint = code;
+      break;
+    }
   }
-  return unicode;
+  
+  // Si no se encontró un punto de código válido, usar un valor por defecto
+  if (!codePoint) {
+    codePoint = 0x1f600; // 😀 (sonrisa por defecto)
+  }
+  
+  // Convertir a formato hexadecimal como lo espera EmojiKitchen
+  return codePoint.toString(16);
 }
 
 export async function mixEmojis(req: Request, res: Response) {
