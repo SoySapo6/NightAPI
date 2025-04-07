@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { exec } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
+import * as util from 'util';
 
-// Create a directory for downloads if it doesn't exist
-const downloadDir = path.join(process.cwd(), 'downloads');
+const execPromise = util.promisify(exec);
+
+// Create downloads directory if it doesn't exist
+const downloadDir = path.join(process.cwd(), 'downloads', 'video');
 if (!fs.existsSync(downloadDir)) {
   fs.mkdirSync(downloadDir, { recursive: true });
 }
@@ -15,67 +18,100 @@ export async function downloadYoutubeVideo(req: Request, res: Response) {
   try {
     // Validate query parameters
     const schema = z.object({
-      url: z.string().url(),
-      format: z.enum(['mp4', 'webm', 'mkv']).default('mp4'),
-      quality: z.enum(['best', '1080p', '720p', '480p', '360p']).default('720p')
+      url: z.string().url().includes('youtube.com', { message: 'Only YouTube URLs are supported' }).or(
+          z.string().url().includes('youtu.be', { message: 'Only YouTube URLs are supported' })
+      ),
+      format: z.enum(['mp4', 'webm']).default('mp4'),
+      quality: z.enum(['360p', '480p', '720p', '1080p']).default('720p')
     });
     
     const { url, format, quality } = schema.parse(req.query);
     
-    // Generate a unique filename
+    // Generate unique filename to avoid collisions
     const fileId = crypto.randomBytes(8).toString('hex');
     const outputPath = path.join(downloadDir, `${fileId}.${format}`);
     
-    // Command to download video using yt-dlp
-    let qualityArg = '';
-    if (quality === 'best') {
-      qualityArg = '-f best';
-    } else {
-      // Extract the resolution from quality (e.g., '720p' -> '720')
-      const resolution = quality.replace('p', '');
-      qualityArg = `-f "bestvideo[height<=?${resolution}]+bestaudio/best[height<=?${resolution}]"`;
-    }
-    
-    const command = `yt-dlp ${qualityArg} -o "${outputPath}" "${url}"`;
-    
-    console.log(`Executing command: ${command}`);
-    
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing yt-dlp: ${error.message}`);
-        console.error(`stderr: ${stderr}`);
-        return res.status(500).json({
-          error: 'Internal Server Error',
-          message: 'Failed to download video',
-          details: error.message
-        });
-      }
+    try {
+      // First, get video info
+      const { stdout: infoOutput } = await execPromise(
+        `youtube-dl --dump-json "${url}"`
+      );
       
-      // Check if the file exists
+      const videoInfo = JSON.parse(infoOutput);
+      const { title, uploader, duration } = videoInfo;
+      
+      // Map quality strings to format strings for youtube-dl
+      const formatMap: Record<string, string> = {
+        '360p': '18',       // 360p mp4
+        '480p': '135+140',  // 480p mp4 + audio
+        '720p': '22',       // 720p mp4
+        '1080p': '137+140', // 1080p mp4 + audio
+      };
+      
+      const formatString = formatMap[quality] || '22'; // Default to 720p if not found
+      
+      // Download video
+      const command = `youtube-dl -f ${formatString} -o "${outputPath}" "${url}"`;
+      await execPromise(command);
+      
+      // Check if file exists
       if (!fs.existsSync(outputPath)) {
-        return res.status(500).json({
-          error: 'Internal Server Error',
-          message: 'Failed to save video file'
-        });
+        throw new Error('Download failed: output file not found');
       }
       
-      // Set appropriate headers
+      // Get file stats
+      const stats = fs.statSync(outputPath);
+      const fileSizeInBytes = stats.size;
+      const fileSizeInMB = (fileSizeInBytes / (1024 * 1024)).toFixed(2);
+      
+      // Format duration
+      const durationMin = Math.floor(duration / 60);
+      const durationSec = Math.floor(duration % 60);
+      const durationFormatted = `${durationMin}:${durationSec.toString().padStart(2, '0')}`;
+      
+      // Set response headers
       res.setHeader('Content-Type', `video/${format}`);
-      res.setHeader('Content-Disposition', `attachment; filename="video.${format}"`);
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(title)}.${format}"`);
       
       // Stream the file
       const fileStream = fs.createReadStream(outputPath);
       fileStream.pipe(res);
       
-      // Clean up the file after sending
+      // Delete file after sending
       fileStream.on('end', () => {
         fs.unlink(outputPath, (err) => {
-          if (err) console.error(`Error deleting file: ${err.message}`);
+          if (err) console.error(`Error deleting video file: ${err.message}`);
         });
       });
-    });
+      
+      // Log success (but don't send in response as we're streaming the file)
+      console.log({
+        success: true,
+        format,
+        quality,
+        title,
+        author: uploader,
+        duration: durationFormatted,
+        file_size: `${fileSizeInMB} MB`
+      });
+      
+    } catch (error: any) {
+      console.error('Error downloading YouTube video:', error);
+      
+      // Clean up any partial downloads
+      if (fs.existsSync(outputPath)) {
+        fs.unlinkSync(outputPath);
+      }
+      
+      return res.status(500).json({
+        error: 'Internal Server Error',
+        message: 'Failed to download YouTube video',
+        details: error.message
+      });
+    }
+    
   } catch (error: any) {
-    console.error('Error downloading YouTube video:', error);
+    console.error('Error in YouTube video endpoint:', error);
     res.status(400).json({
       error: 'Bad Request',
       message: error.message

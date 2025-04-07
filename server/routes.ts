@@ -45,6 +45,8 @@ import {
 import { downloadYoutubeAudio } from "./apiHandlers/ytaudioHandler";
 import { downloadYoutubeVideo } from "./apiHandlers/ytvideoHandler";
 import { textToSpeech } from "./apiHandlers/ttsHandler";
+import { searchSoundcloud, downloadSoundcloud } from "./apiHandlers/soundcloudHandler";
+import { searchGifs, getRandomGif } from "./apiHandlers/gifHandler";
 
 // Rate limiting middleware
 const rateLimit = async (req: Request, res: Response, next: () => void) => {
@@ -171,6 +173,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // 12. Text-to-Speech
   app.get('/api/tts', textToSpeech);
+  
+  // 13. SoundCloud
+  app.get('/api/soundcloud/search', searchSoundcloud);
+  app.get('/api/soundcloud/download', downloadSoundcloud);
+  
+  // 14. Tenor GIFs
+  app.get('/api/gif/search', searchGifs);
+  app.get('/api/gif/random', getRandomGif);
   
   // Shortcode redirect endpoint
   app.get('/s/:code', async (req, res) => {

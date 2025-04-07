@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'wouter';
-import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, Image, UserCheck, MapPin, Languages, Link2, Youtube, Music, Speech } from 'lucide-react';
+import { Copy, Bot, Laugh, CloudMoon, Newspaper, Coins, ImageIcon, UserCheck, MapPin, Languages, Link2, Youtube, Music, Speech } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 import Header from '@/components/Header';
@@ -134,7 +134,7 @@ const Home: FC = () => {
       })
     },
     {
-      icon: <Image />,
+      icon: <ImageIcon />,
       title: "Image Processing",
       description: "Generate and manipulate images for your applications.",
       endpoints: [
@@ -289,6 +289,61 @@ const Home: FC = () => {
         language: "es",
         audio_format: "mp3",
         duration_seconds: 1.2
+      })
+    },
+    {
+      icon: <Music />,
+      title: "SoundCloud",
+      description: "Search and download music from SoundCloud.",
+      endpoints: [
+        { 
+          path: "/api/soundcloud/search", 
+          fullUrl: `${baseUrl}/api/soundcloud/search?query=shape+of+you` 
+        },
+        { 
+          path: "/api/soundcloud/download", 
+          fullUrl: `${baseUrl}/api/soundcloud/download?url=https://soundcloud.com/ed-sheeran/shape-of-you` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        query: "shape of you",
+        results: [
+          {
+            title: "Shape of You",
+            url: "https://soundcloud.com/ed-sheeran/shape-of-you",
+            thumbnail: "https://i1.sndcdn.com/artworks-000325805542-fz5xrd-t500x500.jpg",
+            artist: "Ed Sheeran"
+          }
+        ]
+      })
+    },
+    {
+      icon: <ImageIcon />,
+      title: "Tenor GIFs",
+      description: "Search and get random GIFs from Tenor.",
+      endpoints: [
+        { 
+          path: "/api/gif/search", 
+          fullUrl: `${baseUrl}/api/gif/search?query=cat` 
+        },
+        { 
+          path: "/api/gif/random", 
+          fullUrl: `${baseUrl}/api/gif/random?query=dog` 
+        }
+      ],
+      exampleResponse: JSON.stringify({
+        success: true,
+        query: "cat",
+        results: [
+          {
+            id: "123456789",
+            title: "Cute Cat GIF",
+            url: "https://media.tenor.com/example/cat.gif",
+            preview: "https://media.tenor.com/example/cat-preview.gif",
+            source: "https://tenor.com/view/cat-cute-pet-animal-kitten-123456789"
+          }
+        ]
       })
     }
   ];
