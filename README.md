@@ -11,7 +11,7 @@ Puedes acceder a los endpoints directamente desde tu navegador o herramientas co
 Ejemplo con `curl`:
 
 ```bash
-curl -H "ngrok-skip-browser-warning: true" "https://TUDOMINIO/api/gemini?message=Hola"
+curl -H "ngrok-skip-browser-warning: true" "https://9820-74-249-85-193.ngrok-free.app/api/gemini?message=Hola"
 ```
 
 ---
@@ -28,7 +28,7 @@ Curl o Axios
 Ejemplo:
 
 ```
-curl -H "ngrok-skip-browser-warning: true" "https://fbf0-74-249-85-197.ngrok-free.app/api/gemini?message=hola%20Soy%20Sigma%20XD"
+curl -H "ngrok-skip-browser-warning: true" "https://9820-74-249-85-193.ngrok-free.app/api/gemini?message=hola%20Soy%20Sigma%20XD"
 ```
 
 
