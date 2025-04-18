@@ -513,7 +513,7 @@ const Home: FC = () => {
               
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">Authentication</h3>
-                <p className="mb-4">Most endpoints require an API key. Register for free to get your API key.</p>
+                <p className="mb-4">They should know that to be curl it is not always the same.</p>
                 <div className="bg-background rounded-lg p-4 font-mono text-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-muted-foreground">API Key Header</span>
@@ -532,10 +532,7 @@ const Home: FC = () => {
               
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">Rate Limits</h3>
-                <p>Free tier: 100 requests/day<br />
-                  Standard tier: 10,000 requests/day<br />
-                  Premium tier: 100,000 requests/day
-                </p>
+                <p>Made by SoyMaycol</p>
               </div>
               
               <div>
@@ -546,15 +543,14 @@ const Home: FC = () => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => copyToClipboard(`curl -X GET '${baseUrl}/api/jokes/random' -H 'x-api-key: your_api_key_here'`)}
+                      onClick={() => copyToClipboard(`curl -H "ngrok-skip-browser-warning: true" "${baseUrl}/api/gemini?message=hola%20Soy%20Sigma%20XD`)}
                       className="text-muted-foreground hover:text-cyan-500"
                     >
                       <Copy size={16} />
                     </Button>
                   </div>
                   <code className="whitespace-pre text-foreground">
-                    {`curl -X GET '${baseUrl}/api/jokes/random' \\
-     -H 'x-api-key: your_api_key_here'`}
+                    {`curl -H "ngrok-skip-browser-warning: true" "${baseUrl}/api/gemini?message=hola%20Soy%20Sigma%20XD"`}
                   </code>
                 </div>
               </div>
@@ -594,7 +590,7 @@ const Home: FC = () => {
                       <h3 className="text-lg font-semibold mb-1">Python</h3>
                       <p className="text-muted-foreground text-sm mb-2">For Python applications</p>
                       <div className="font-mono text-xs bg-card p-2 rounded">
-                        <code>pip install nightapi-python</code>
+                        <code>Soon...</code>
                       </div>
                     </div>
                   </div>
@@ -631,7 +627,7 @@ const Home: FC = () => {
           
           <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center">
             <div className="text-muted-foreground text-sm mb-4 md:mb-0">
-              &copy; 2023 NightAPI. All rights reserved.
+              &copy; 2023 NightAPI. All rights reserved. Made by SoyMaycol
             </div>
             
             <div className="flex flex-wrap justify-center gap-4">
