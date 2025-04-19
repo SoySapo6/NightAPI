@@ -152,7 +152,7 @@ await nightapi.quoteSticker("Soy un bot", "Maycol", "https://avatar.com/foto.png
 ---
 
 ⚡ Lista completa de métodos disponibles
-
+```
 NightAPI = {
   gemini(message),
   joke(),
@@ -187,7 +187,7 @@ NightAPI = {
   googleSearch(query),
   quoteSticker(text, name, avatar)
 }
-
+```
 
 ---
 
@@ -196,9 +196,6 @@ NightAPI = {
 > {"error":"Bad Request","message":"Message parameter is required"}
 ¿Qué pasó?
 Olvidaste poner ?message= en tu URL.
-
-
-
 
 ---
 
@@ -236,5 +233,5 @@ Cada estrella ilumina un nuevo endpoint.
 ---
 
 <p align="center">
-  <img src="https://i.imgur.com/ZLhJv1V.gif" width="300"/>
+  <img src="https://files.catbox.moe/9zq2i4.png" width="300"/>
 </p>
